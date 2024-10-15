@@ -1,0 +1,203 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Y-Rate</title>
+        <link href="style.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <header>
+            <div class="container" id="headercontainer">
+                <img src="assets/logo.png" class="logopic"/>
+            </div>
+        </header>
+        <main>
+            <div>
+                <p style="font-family: InterM;">Jumlah Periode</p>
+                <input class="container-period" id="periode" type="number" min="1" value="1"/>
+            </div>
+            <div id="input-list">
+                <div class="input-header">
+                    <p id='tahun' class="content-header">Tahun</p>
+                    <p id="kontribusi" class="content-header">Kontribusi</p>
+                    <p id="keuntungan" class="content-header">Keuntungan</p>
+                </div>
+                <div id="input-table">
+                    <p id="container-list">0</p>
+                    <input class="contribute-value" id="container-list" type="number" min="0"/>
+                    <input class="profit-value" id="container-list" type="number" min="0"/>
+                </div>
+                <div id="input-table">
+                    <p id="container-list">1</p>
+                    <input class="contribute-value" id="container-list" type="number" min="0"/>
+                    <input class="profit-value" id="container-list" type="number" min="0"/>
+                </div>
+                <div id="input-button">
+                    <button id="irr-finder">Find IRR</button>
+                </div>
+            </div>
+            <div id="output-answer">
+                IRR = 
+            </div>
+        </main>
+        <script>
+            const inpute = document.getElementById('periode');
+            const liste = document.getElementById('input-list');
+            const finder = document.getElementById('irr-finder');
+
+            finder.addEventListener('click', function() {
+                const conVals = document.getElementsByClassName('contribute-value');
+                const proVals = document.getElementsByClassName('profit-value');
+                
+                let conValuesArray = [];
+                let proValuesArray = [];
+
+                // Iterate through the collection of elements and extract their values
+                for (let i = 0; i < conVals.length; i++) {
+                    conValuesArray.push(parseFloat(conVals[i].value || 0));  // convert the input to float, handle empty input
+                    proValuesArray.push(parseFloat(proVals[i].value || 0));  // same for profit values
+                }
+
+                const dataToSend = {
+                    conValues: conValuesArray,
+                    proValues: proValuesArray
+                }
+
+                fetch('http://localhost:5000/upload', {  // Ensure this URL is correct
+                    method: 'POST',  // Ensure this is set to POST
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                })
+                .then(response => {
+                    if (!response.ok) {  // Handle HTTP errors
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    const showAnswer = document.getElementById('output-answer');
+                    const num = Number(data.answer[0]);
+                    showAnswer.textContent = `IRR = ${((num-1)*100).toFixed(2)}%`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+            });
+
+            inpute.addEventListener('change', function() {
+                const nums = parseInt(inpute.value,10);
+                liste.innerHTML = '';
+
+                const numList = document.createElement('div');
+                numList.className = 'input-header';
+                
+                const tahun = document.createElement('p');
+                tahun.textContent = 'Tahun';
+                tahun.className = 'content-header';
+                tahun.id = 'tahun'
+
+                const kontribusi = document.createElement('p');
+                kontribusi.textContent = 'Kontribusi';
+                kontribusi.className = 'content-header';
+                kontribusi.id = 'kontribusi'
+
+                const keuntungan = document.createElement('p');
+                keuntungan.textContent = 'Keuntungan';
+                keuntungan.className = 'content-header';
+                keuntungan.id = 'keuntungan';
+
+                numList.appendChild(tahun);
+                numList.appendChild(kontribusi);
+                numList.appendChild(keuntungan);
+
+                liste.appendChild(numList);
+
+                for (let i = 0; i < nums+1; i++) {
+                    console.log(nums+1);
+
+                    const numList = document.createElement('div');
+                    numList.id = 'input-table';
+                    
+                    const periodNum = document.createElement('p');
+                    periodNum.textContent = `${i}`;
+                    periodNum.id = 'container-list';
+
+                    const contributeNum = document.createElement('input');
+                    contributeNum.type = 'number';
+                    contributeNum.min = '0';
+                    contributeNum.id = 'container-list';
+                    contributeNum.className = 'contribute-value';
+
+                    const profitNum = document.createElement('input');
+                    profitNum.type = 'number';
+                    profitNum.min = '0';
+                    profitNum.id = 'container-list';
+                    profitNum.className = 'profit-value';
+
+                    numList.appendChild(periodNum);
+                    numList.appendChild(contributeNum);
+                    numList.appendChild(profitNum);
+
+                    liste.appendChild(numList);
+                }
+
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.id = 'input-button';
+
+                const buttons = document.createElement('button');
+                buttons.textContent = 'Find IRR';
+                buttons.id = 'irr-finder';
+
+                buttonsDiv.appendChild(buttons);
+
+                liste.appendChild(buttonsDiv);
+
+                buttons.addEventListener('click', function() {
+                    const conVals = document.getElementsByClassName('contribute-value');
+                    const proVals = document.getElementsByClassName('profit-value');
+                    
+                    let conValuesArray = [];
+                    let proValuesArray = [];
+
+                    // Iterate through the collection of elements and extract their values
+                    for (let i = 0; i < conVals.length; i++) {
+                        conValuesArray.push(parseFloat(conVals[i].value || 0));  // convert the input to float, handle empty input
+                        proValuesArray.push(parseFloat(proVals[i].value || 0));  // same for profit values
+                    }
+
+                    const dataToSend = {
+                        conValues: conValuesArray,
+                        proValues: proValuesArray
+                    }
+
+                    fetch('http://localhost:5000/upload', {  // Ensure this URL is correct
+                        method: 'POST',  // Ensure this is set to POST
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(dataToSend)
+                    })
+                    .then(response => {
+                        if (!response.ok) {  // Handle HTTP errors
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        const showAnswer = document.getElementById('output-answer');
+                        const num = Number(data.answer[0])
+                        showAnswer.textContent = `IRR = ${((num-1)*100).toFixed(2)}%`;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
+                });
+            })
+        </script>
+    </body>
+</html>
