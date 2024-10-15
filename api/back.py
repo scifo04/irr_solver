@@ -1,9 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import numpy as np
 
 app = Flask(__name__)
 CORS(app)
+
+# Serve the index.html page
+@app.route('/')
+def index():
+    return send_from_directory('frontend', 'index.html')
+
+# Serve other static files (CSS, JS, images)
+@app.route('/assets/<path:path>')
+def send_assets(path):
+    return send_from_directory('frontend/assets', path)
 
 @app.route('/upload', methods=['POST'])
 def upload():
