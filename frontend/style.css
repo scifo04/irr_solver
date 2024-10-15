@@ -147,4 +147,4 @@ body {
     font-family: 'InterM';
 }
 
-@font-face { font-family: InterM; src: url('../public/Inter-Medium.ttf'); } 
+@font-face { font-family: InterM; src: url('Inter-Medium.ttf'); } 
